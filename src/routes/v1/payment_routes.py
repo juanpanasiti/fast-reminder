@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Path
 
 router = APIRouter(
     prefix='/payments',
@@ -85,7 +87,7 @@ async def create():
         404: {'description': 'Pago no encontrado'},
     }
     )
-async def get_by_id(payment_id: int):
+async def get_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]):
     return {
         'id': payment_id,
         'expense_id': 1,
@@ -108,7 +110,7 @@ async def get_by_id(payment_id: int):
         404: {'description': 'Pago no encontrado'},
     }
     )
-async def update_by_id(payment_id: int):
+async def update_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]):
     return {
         'id': payment_id,
         'expense_id': 1,
@@ -131,5 +133,5 @@ async def update_by_id(payment_id: int):
         404: {'description': 'Pago no encontrado'},
     }
     )
-async def delete_by_id(payment_id: int)-> None:
+async def delete_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')])-> None:
     return None

@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Path
+
 
 router = APIRouter(
     prefix='/expenses',
@@ -95,10 +98,10 @@ async def create():
         404: {'description': 'Gasto no encontrado'},
     }
 )
-async def get_by_id(expense_id: int):
+async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del gasto a buscar', title='ID del gasto')]):
     # TODO: Implementar búsqueda por ID
     return {
-        'id': 1,
+        'id': expense_id,
         'name': 'Factura de celular',
         'description': 'Factura claro. En marzo 2026 vence descuento sobre la línea.',
         'periodicity_in_months': 1,
@@ -120,7 +123,7 @@ async def get_by_id(expense_id: int):
         404: {'description': 'Gasto para actualizar no encontrado'},
     }
 )
-async def update_by_id(expense_id: int):
+async def update_by_id(expense_id: Annotated[int, Path(ge=1, title='ID del gasto')]):
     # TODO: Implementar la actualización por ID
     # Campos a recibir:
     # - name: str (opcional)
@@ -153,6 +156,6 @@ async def update_by_id(expense_id: int):
         404: {'description': 'Gasto para borrar no encontrado'},
     }
 )
-async def delete_by_id(expense_id: int) -> None:
+async def delete_by_id(expense_id: Annotated[int, Path(ge=1, title='ID del gasto')]) -> None:
     # TODO: Implementar borrado por ID
     return None
