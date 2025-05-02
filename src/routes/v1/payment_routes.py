@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, Query
 
 router = APIRouter(
     prefix='/payments',
@@ -23,7 +23,7 @@ router = APIRouter(
         400: {'description': 'Bad Request. Revisa los parámetros de paginación o filtrado.'},
     }
 )
-async def get_paginated():
+async def get_paginated(page: Annotated[int, Query(ge=1)] = 1, limit: Annotated[int, Query(ge=1, le=100)] = 10):
     return {
         'results': [
             {
@@ -39,10 +39,10 @@ async def get_paginated():
             }
         ],
         'meta': {
-            'current_page': 1,
+            'current_page': page,
             'total_pages': 1,
             'total_items': 1,
-            'items_per_page': 10,
+            'items_per_page': limit,
             'has_next_page': False,
             'has_previous_page': False,
         }
@@ -86,7 +86,7 @@ async def create():
         200: {'description': 'Pago encontrado'},
         404: {'description': 'Pago no encontrado'},
     }
-    )
+)
 async def get_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]):
     return {
         'id': payment_id,
@@ -109,7 +109,7 @@ async def get_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]
         400: {'description': 'Bad Request. Revisa la info del body y/o parámetros'},
         404: {'description': 'Pago no encontrado'},
     }
-    )
+)
 async def update_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]):
     return {
         'id': payment_id,
@@ -132,6 +132,6 @@ async def update_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto
         204: {'description': 'Pago eliminado exitosamente'},
         404: {'description': 'Pago no encontrado'},
     }
-    )
-async def delete_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')])-> None:
+)
+async def delete_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]) -> None:
     return None
