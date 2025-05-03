@@ -2,6 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 
+from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest
+
 
 router = APIRouter(
     prefix='/expenses',
@@ -66,7 +68,7 @@ async def get_paginated(page: Annotated[int, Query(ge=1)] = 1, limit: Annotated[
         400: {'description': 'Revisa el body request'},
     }
 )
-async def create():
+async def create(new_expense: NewExpenseRequest):
     # TODO: Recibir la data para crear el gasto.
     # Campos a recibir:
     # - name: str
@@ -123,7 +125,10 @@ async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del ga
         404: {'description': 'Gasto para actualizar no encontrado'},
     }
 )
-async def update_by_id(expense_id: Annotated[int, Path(ge=1, title='ID del gasto')]):
+async def update_by_id(
+    expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
+    expense_data: UpdateExpenseRequest
+):
     # TODO: Implementar la actualización por ID
     # Campos a recibir:
     # - name: str (opcional)
@@ -133,7 +138,7 @@ async def update_by_id(expense_id: Annotated[int, Path(ge=1, title='ID del gasto
     # - next_payment_date: date (optional)
     # - estimated_next_payment_date: date (optional)
     return {
-        'id': 1,
+        'id': expense_id,
         'name': 'Factura de celular',
         'description': 'Factura claro. En marzo 2026 vence descuento sobre la línea.',
         'periodicity_in_months': 1,
