@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 
-from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest
+from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest, ExpenseResponse, ExpensePaginatedResponse
 
 
 router = APIRouter(
@@ -28,7 +28,10 @@ router = APIRouter(
         400: {'description': 'Bad Request. Revisa los parámetros de paginación o filtrado.'},
     }
 )
-async def get_paginated(page: Annotated[int, Query(ge=1)] = 1, limit: Annotated[int, Query(ge=1, le=100)] = 10):
+async def get_paginated(
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,
+) -> ExpensePaginatedResponse:
     # TODO: Implementar paginación
     # TODO: Implementar filtros
     # TODO: Implementar tipo de respuesta
@@ -68,7 +71,7 @@ async def get_paginated(page: Annotated[int, Query(ge=1)] = 1, limit: Annotated[
         400: {'description': 'Revisa el body request'},
     }
 )
-async def create(new_expense: NewExpenseRequest):
+async def create(new_expense: NewExpenseRequest) -> ExpenseResponse:
     # TODO: Recibir la data para crear el gasto.
     # Campos a recibir:
     # - name: str
@@ -82,7 +85,7 @@ async def create(new_expense: NewExpenseRequest):
         'name': 'Factura de celular',
         'description': 'Factura claro. En marzo 2026 vence descuento sobre la línea.',
         'periodicity_in_months': 1,
-        'last_payment_date': '2025-04-05',
+        'last_payment_date': '',
         'next_payment_date': None,
         'estimated_next_payment_date': '2026-05-05',
         'payments': [],
@@ -100,7 +103,7 @@ async def create(new_expense: NewExpenseRequest):
         404: {'description': 'Gasto no encontrado'},
     }
 )
-async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del gasto a buscar', title='ID del gasto')]):
+async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del gasto a buscar', title='ID del gasto')]) -> ExpenseResponse:
     # TODO: Implementar búsqueda por ID
     return {
         'id': expense_id,
@@ -128,7 +131,7 @@ async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del ga
 async def update_by_id(
     expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
     expense_data: UpdateExpenseRequest
-):
+) -> ExpenseResponse:
     # TODO: Implementar la actualización por ID
     # Campos a recibir:
     # - name: str (opcional)

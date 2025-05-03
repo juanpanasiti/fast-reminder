@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query
 
-from src.schemas.payment_schemas import NewPaymentRequest, UpdatePaymentRequest
+from src.schemas.payment_schemas import NewPaymentRequest, UpdatePaymentRequest, PaymentResponse, PaymentPaginatedResponse
 
 router = APIRouter(
     prefix='/payments',
@@ -25,7 +25,10 @@ router = APIRouter(
         400: {'description': 'Bad Request. Revisa los parámetros de paginación o filtrado.'},
     }
 )
-async def get_paginated(page: Annotated[int, Query(ge=1)] = 1, limit: Annotated[int, Query(ge=1, le=100)] = 10):
+async def get_paginated(
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 10,
+) -> PaymentPaginatedResponse:
     return {
         'results': [
             {
@@ -60,7 +63,7 @@ async def get_paginated(page: Annotated[int, Query(ge=1)] = 1, limit: Annotated[
         400: {'description': 'Bad Request. Revisa la info del body y/o parámetros'},
     }
 )
-async def create(new_payment: NewPaymentRequest):
+async def create(new_payment: NewPaymentRequest) -> PaymentResponse:
     # TODO: Implementar creación de pago
     # Campost requeridos:
     # - expense_id: int
@@ -89,7 +92,7 @@ async def create(new_payment: NewPaymentRequest):
         404: {'description': 'Pago no encontrado'},
     }
 )
-async def get_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]):
+async def get_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]) -> PaymentResponse:
     return {
         'id': payment_id,
         'expense_id': 1,
@@ -115,7 +118,7 @@ async def get_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]
 async def update_by_id(
     payment_id: Annotated[int, Path(ge=1, title='ID del gasto')],
     payment_data: UpdatePaymentRequest,
-):
+) -> PaymentResponse:
     return {
         'id': payment_id,
         'expense_id': 1,

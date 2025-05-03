@@ -1,7 +1,9 @@
-from typing import Optional
-from datetime import date
+from typing import Optional, List
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
+
+from .paginated_schemas import PaginationMeta
 
 
 class NewExpenseRequest(BaseModel):
@@ -20,3 +22,22 @@ class UpdateExpenseRequest(BaseModel):
     last_payment_date: Optional[date] = None
     next_payment_date: Optional[date] = None
     estimated_next_payment_date: Optional[date] = None
+
+
+class ExpenseResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    periodicity_in_months: int
+    last_payment_date: Optional[date]
+    next_payment_date: Optional[date]
+    estimated_next_payment_date: Optional[date]
+    payments: list = []
+    has_pending_payments: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+class ExpensePaginatedResponse(BaseModel):
+    results: List[ExpenseResponse]
+    meta: PaginationMeta
