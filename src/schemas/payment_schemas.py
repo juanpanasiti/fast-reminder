@@ -2,6 +2,7 @@ from typing import Optional, List
 from datetime import date, datetime
 
 from pydantic import BaseModel, Field
+from pydantic_tooltypes import Partial
 
 from .paginated_schemas import PaginationMeta
 
@@ -14,12 +15,16 @@ class NewPaymentRequest(BaseModel):
     notes: Optional[str] = Field('', max_length=500)
 
 
-class UpdatePaymentRequest(BaseModel):
-    expense_id: Optional[int] = Field(None, ge=1)
-    amount: Optional[float] = Field(None, gt=0)
-    due_date: Optional[date] = None
-    paid_date: Optional[date] = None
-    notes: Optional[str] = Field(None, max_length=500)
+class UpdatePaymentRequest(Partial[NewPaymentRequest]):
+    pass
+
+# class UpdatePaymentRequest(BaseModel):
+#     expense_id: Optional[int] = Field(None, ge=1)
+#     amount: Optional[float] = Field(None, gt=0)
+#     due_date: Optional[date] = None
+#     paid_date: Optional[date] = None
+#     notes: Optional[str] = Field(None, max_length=500)
+
 
 class PaymentResponse(BaseModel):
     id: int
