@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Path, Query
 
 from src.schemas.payment_schemas import NewPaymentRequest, UpdatePaymentRequest, PaymentResponse, PaymentPaginatedResponse
-
+from .dependencies import payment_controller
 router = APIRouter(
     prefix='/payments',
     responses={
@@ -29,29 +29,7 @@ async def get_paginated(
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 10,
 ) -> PaymentPaginatedResponse:
-    return {
-        'results': [
-            {
-                'id': 1,
-                'expense_id': 1,
-                'amount': 100.0,
-                'due_date': '2025-05-05',
-                'paid_date': '2025-05-05',
-                'status': 'paid',
-                'notes': 'Pago realizado con tarjeta de crédito.',
-                'created_at': '2025-05-02T17:33:00Z',
-                'updated_at': '2025-05-02T17:33:00Z',
-            }
-        ],
-        'meta': {
-            'current_page': page,
-            'total_pages': 1,
-            'total_items': 1,
-            'items_per_page': limit,
-            'has_next_page': False,
-            'has_previous_page': False,
-        }
-    }
+    return await payment_controller.get_paginated(page, limit)
 
 
 @router.post(
@@ -64,24 +42,7 @@ async def get_paginated(
     }
 )
 async def create(new_payment: NewPaymentRequest) -> PaymentResponse:
-    # TODO: Implementar creación de pago
-    # Campost requeridos:
-    # - expense_id: int
-    # - amount: float
-    # - due_date: date (opcional)
-    # - paid_date: date (opcional)
-    # - notes: str (opcional)
-    return {
-        'id': 1,
-        'expense_id': 1,
-        'amount': 100.0,
-        'due_date': '2025-05-05',
-        'paid_date': '2025-05-05',
-        'status': 'paid',
-        'notes': 'Pago realizado con tarjeta de crédito.',
-        'created_at': '2025-05-02T17:33:00Z',
-        'updated_at': '2025-05-02T17:33:00Z',
-    }
+    return await payment_controller.create(new_payment)
 
 
 @router.get(
@@ -93,17 +54,7 @@ async def create(new_payment: NewPaymentRequest) -> PaymentResponse:
     }
 )
 async def get_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]) -> PaymentResponse:
-    return {
-        'id': payment_id,
-        'expense_id': 1,
-        'amount': 100.0,
-        'due_date': '2025-05-05',
-        'paid_date': '2025-05-05',
-        'status': 'paid',
-        'notes': 'Pago realizado con tarjeta de crédito.',
-        'created_at': '2025-05-02T17:33:00Z',
-        'updated_at': '2025-05-02T17:33:00Z',
-    }
+    return await payment_controller.get_by_id(payment_id)
 
 
 @router.patch(
@@ -119,17 +70,7 @@ async def update_by_id(
     payment_id: Annotated[int, Path(ge=1, title='ID del gasto')],
     payment_data: UpdatePaymentRequest,
 ) -> PaymentResponse:
-    return {
-        'id': payment_id,
-        'expense_id': 1,
-        'amount': 100.0,
-        'due_date': '2025-05-05',
-        'paid_date': '2025-05-05',
-        'status': 'paid',
-        'notes': 'Pago realizado con tarjeta de crédito.',
-        'created_at': '2025-05-02T17:33:00Z',
-        'updated_at': '2025-05-02T17:33:00Z',
-    }
+    return await payment_controller.update(payment_id)
 
 
 @router.delete(
@@ -142,4 +83,4 @@ async def update_by_id(
     }
 )
 async def delete_by_id(payment_id: Annotated[int, Path(ge=1, title='ID del gasto')]) -> None:
-    return None
+    return await payment_controller.delete(payment_id)

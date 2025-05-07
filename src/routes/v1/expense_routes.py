@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Path, Query
 
 from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest, ExpenseResponse, ExpensePaginatedResponse
-
+from .dependencies import expense_controller
 
 router = APIRouter(
     prefix='/expenses',
@@ -32,34 +32,7 @@ async def get_paginated(
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 10,
 ) -> ExpensePaginatedResponse:
-    # TODO: Implementar paginación
-    # TODO: Implementar filtros
-    # TODO: Implementar tipo de respuesta
-    return {
-        'results': [
-            {
-                'id': 1,
-                'name': 'Factura de celular',
-                'description': 'Factura claro. En marzo 2026 vence descuento sobre la línea.',
-                'periodicity_in_months': 1,
-                'last_payment_date': '2025-04-05',
-                'next_payment_date': None,
-                'estimated_next_payment_date': '2026-05-05',
-                'payments': [],
-                'has_pending_payments': False,
-                'created_at': '2025-05-02T17:33:00Z',
-                'updated_at': '2025-05-02T17:33:00Z',
-            }
-        ],
-        'meta': {
-            'current_page': page,
-            'total_pages': 1,
-            'total_items': 1,
-            'items_per_page': limit,
-            'has_next_page': False,
-            'has_previous_page': False,
-        }
-    }
+    return await expense_controller.get_paginated(page, limit)
 
 
 @router.post(
@@ -72,27 +45,7 @@ async def get_paginated(
     }
 )
 async def create(new_expense: NewExpenseRequest) -> ExpenseResponse:
-    # TODO: Recibir la data para crear el gasto.
-    # Campos a recibir:
-    # - name: str
-    # - description: str (opcional)
-    # - periodicity_in_months: int
-    # - last_payment_date: date (optional)
-    # - next_payment_date: date (optional)
-    # - estimated_next_payment_date: date (optional)
-    return {
-        'id': 1,
-        'name': 'Factura de celular',
-        'description': 'Factura claro. En marzo 2026 vence descuento sobre la línea.',
-        'periodicity_in_months': 1,
-        'last_payment_date': '',
-        'next_payment_date': None,
-        'estimated_next_payment_date': '2026-05-05',
-        'payments': [],
-        'has_pending_payments': False,
-        'created_at': '2025-05-02T17:33:00Z',
-        'updated_at': '2025-05-02T17:33:00Z',
-    }
+    return await expense_controller.create(new_expense)
 
 
 @router.get(
@@ -104,20 +57,7 @@ async def create(new_expense: NewExpenseRequest) -> ExpenseResponse:
     }
 )
 async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del gasto a buscar', title='ID del gasto')]) -> ExpenseResponse:
-    # TODO: Implementar búsqueda por ID
-    return {
-        'id': expense_id,
-        'name': 'Factura de celular',
-        'description': 'Factura claro. En marzo 2026 vence descuento sobre la línea.',
-        'periodicity_in_months': 1,
-        'last_payment_date': '2025-04-05',
-        'next_payment_date': None,
-        'estimated_next_payment_date': '2026-05-05',
-        'payments': [],
-        'has_pending_payments': False,
-        'created_at': '2025-05-02T17:33:00Z',
-        'updated_at': '2025-05-02T17:33:00Z',
-    }
+    return await expense_controller.get_by_id(expense_id)
 
 
 @router.patch(
@@ -132,27 +72,7 @@ async def update_by_id(
     expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
     expense_data: UpdateExpenseRequest
 ) -> ExpenseResponse:
-    # TODO: Implementar la actualización por ID
-    # Campos a recibir:
-    # - name: str (opcional)
-    # - description: str (opcional)
-    # - periodicity_in_months: int (opcional)
-    # - last_payment_date: date (optional)
-    # - next_payment_date: date (optional)
-    # - estimated_next_payment_date: date (optional)
-    return {
-        'id': expense_id,
-        'name': 'Factura de celular',
-        'description': 'Factura claro. En marzo 2026 vence descuento sobre la línea.',
-        'periodicity_in_months': 1,
-        'last_payment_date': '2025-04-05',
-        'next_payment_date': None,
-        'estimated_next_payment_date': '2026-05-05',
-        'payments': [],
-        'has_pending_payments': False,
-        'created_at': '2025-05-02T17:33:00Z',
-        'updated_at': '2025-05-02T17:33:00Z',
-    }
+    return await expense_controller.update(expense_id)
 
 
 @router.delete(
@@ -165,5 +85,4 @@ async def update_by_id(
     }
 )
 async def delete_by_id(expense_id: Annotated[int, Path(ge=1, title='ID del gasto')]) -> None:
-    # TODO: Implementar borrado por ID
-    return None
+    return await expense_controller.delete(expense_id)
