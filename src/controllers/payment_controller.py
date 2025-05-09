@@ -1,16 +1,21 @@
 from src.schemas.payment_schemas import NewPaymentRequest, UpdatePaymentRequest, PaymentResponse, PaymentPaginatedResponse
 from src.exceptions.server_exceptions import InternalServerError, NotImplemented
+from src.exceptions.client_exceptions import NotFound
 from src.exceptions.base_http_exception import BaseHTTPException
+from src.exceptions import app_exceptions as ae
+from src.services.payment_service import PaymentService
 
 
 class PaymentController():
-    def __init__(self, payment_service):
+    def __init__(self, payment_service: PaymentService):
         self.payment_service = payment_service
 
     async def get_paginated(self, page: int, limit: int) -> PaymentPaginatedResponse:
         try:
-            # return await self.payment_service.get_paginated(page, limit)
-            raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+            return await self.payment_service.get_paginated(page, limit)
+            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+        except ae.NotFoundError as ex:
+            raise NotFound(ex.message, 'PAYMENT_PAGE_NOT_FOUND')
         except BaseHTTPException as ex:
             raise ex
         except Exception as ex:
@@ -21,20 +26,22 @@ class PaymentController():
 
     async def create(self, data: NewPaymentRequest) -> PaymentResponse:
         try:
-            # return await self.payment_service.create(data)
-            raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+            return await self.payment_service.create(data)
+            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
         except BaseHTTPException as ex:
             raise ex
         except Exception as ex:
             raise InternalServerError(
-                message=f'Error al crear el pago "{data.name}"',
+                message=f'Error al crear el pago de $"{data.amount}"',
                 exception_code='PAYMENT_UNHANDLED_ERROR'
             )
 
     async def get_by_id(self, payment_id: int) -> PaymentResponse:
         try:
-            # return await self.payment_service.get_by_id(payment_id)
-            raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+            return await self.payment_service.get_by_id(payment_id)
+            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+        except ae.NotFoundError as ex:
+            raise NotFound(ex.message, 'PAYMENT_NOT_FOUND')
         except BaseHTTPException as ex:
             raise ex
         except Exception as ex:
@@ -45,8 +52,10 @@ class PaymentController():
 
     async def update(self, payment_id: int, data: UpdatePaymentRequest) -> PaymentResponse:
         try:
-            # return await self.payment_service.update(payment_id, data)
-            raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+            return await self.payment_service.update(payment_id, data)
+            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+        except ae.NotFoundError as ex:
+            raise NotFound(ex.message, 'PAYMENT_NOT_FOUND')
         except BaseHTTPException as ex:
             raise ex
         except Exception as ex:
@@ -57,8 +66,10 @@ class PaymentController():
 
     async def delete(self, payment_id: int) -> None:
         try:
-            # return await self.payment_service.delete(payment_id)
-            raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+            return await self.payment_service.delete(payment_id)
+            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='PAYMENT_ENDPOINT_NOT_IMPLEMENTED')
+        except ae.NotFoundError as ex:
+            raise NotFound(ex.message, 'PAYMENT_NOT_FOUND')
         except BaseHTTPException as ex:
             raise ex
         except Exception as ex:

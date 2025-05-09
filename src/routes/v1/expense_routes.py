@@ -72,7 +72,7 @@ async def update_by_id(
     expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
     expense_data: UpdateExpenseRequest
 ) -> ExpenseResponse:
-    return await expense_controller.update(expense_id)
+    return await expense_controller.update(expense_id, expense_data)
 
 
 @router.delete(

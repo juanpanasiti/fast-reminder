@@ -70,7 +70,7 @@ async def update_by_id(
     payment_id: Annotated[int, Path(ge=1, title='ID del gasto')],
     payment_data: UpdatePaymentRequest,
 ) -> PaymentResponse:
-    return await payment_controller.update(payment_id)
+    return await payment_controller.update(payment_id, payment_data)
 
 
 @router.delete(
