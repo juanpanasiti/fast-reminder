@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 
 from .routes import api_router
+from .config.logger import configure_logging
 
+configure_logging()
 
 api_server = FastAPI(
     description='Proyecto Fast-Reminder del curso de Python+FastAPI 2025',
