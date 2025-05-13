@@ -1,9 +1,12 @@
+import logging
+
 from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest, ExpenseResponse, ExpensePaginatedResponse
-from src.exceptions.server_exceptions import InternalServerError, NotImplemented
+from src.exceptions.server_exceptions import InternalServerError
 from src.exceptions.client_exceptions import NotFound
 from src.exceptions import app_exceptions as ae
-from src.exceptions.base_http_exception import BaseHTTPException
 from src.services.expense_service import ExpenseService
+
+logger = logging.getLogger(__name__)
 
 
 class ExpenseController():
@@ -13,12 +16,11 @@ class ExpenseController():
     async def get_paginated(self, page: int, limit: int) -> ExpensePaginatedResponse:
         try:
             return await self.expense_service.get_paginated(page, limit)
-            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='EXPENSE_ENDPOINT_NOT_IMPLEMENTED')
         except ae.NotFoundError as ex:
+            logger.error(f'Pagina {page} no existe. Items por pagina: {limit}')
             raise NotFound(ex.message, 'EXPENSE_PAGE_NOT_FOUND')
-        except BaseHTTPException as ex:
-            raise ex
         except Exception as ex:
+            logger.critical(f'Error desconocido al listar gastos: {ex}')
             raise InternalServerError(
                 message=f'Error al listar gastos',
                 exception_code='EXPENSE_UNHANDLED_ERROR'
@@ -27,10 +29,8 @@ class ExpenseController():
     async def create(self, data: NewExpenseRequest) -> ExpenseResponse:
         try:
             return await self.expense_service.create(data)
-            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='EXPENSE_ENDPOINT_NOT_IMPLEMENTED')
-        except BaseHTTPException as ex:
-            raise ex
         except Exception as ex:
+            logger.critical(f'Error desconocido al crear el gasto: {ex}')
             raise InternalServerError(
                 message=f'Error al crear el gasto "{data.name}"',
                 exception_code='EXPENSE_UNHANDLED_ERROR'
@@ -39,12 +39,11 @@ class ExpenseController():
     async def get_by_id(self, expense_id: int) -> ExpenseResponse:
         try:
             return await self.expense_service.get_by_id(expense_id)
-            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='EXPENSE_ENDPOINT_NOT_IMPLEMENTED')
         except ae.NotFoundError as ex:
+            logger.error(f'El gasto #{expense_id} no encontrado')
             raise NotFound(ex.message, 'EXPENSE_NOT_FOUND')
-        except BaseHTTPException as ex:
-            raise ex
         except Exception as ex:
+            logger.critical(f'Error desconocido al obtener el gasto #{expense_id}: {ex}')
             raise InternalServerError(
                 message=f'Error al obtener el gasto #{expense_id}',
                 exception_code='EXPENSE_UNHANDLED_ERROR'
@@ -53,12 +52,11 @@ class ExpenseController():
     async def update(self, expense_id: int, data: UpdateExpenseRequest) -> ExpenseResponse:
         try:
             return await self.expense_service.update(expense_id, data)
-            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='EXPENSE_ENDPOINT_NOT_IMPLEMENTED')
         except ae.NotFoundError as ex:
+            logger.error(f'El gasto #{expense_id} no encontrado')
             raise NotFound(ex.message, 'EXPENSE_NOT_FOUND')
-        except BaseHTTPException as ex:
-            raise ex
         except Exception as ex:
+            logger.critical(f'Error desconocido al actualizar el gasto #{expense_id}: {ex}')
             raise InternalServerError(
                 message=f'Error al actualizar el gasto #{expense_id}',
                 exception_code='EXPENSE_UNHANDLED_ERROR'
@@ -67,12 +65,11 @@ class ExpenseController():
     async def delete(self, expense_id: int) -> None:
         try:
             return await self.expense_service.delete(expense_id)
-            # raise NotImplemented('Endpoint get paginated not implemented', exception_code='EXPENSE_ENDPOINT_NOT_IMPLEMENTED')
         except ae.NotFoundError as ex:
+            logger.error(f'El gasto #{expense_id} no encontrado')
             raise NotFound(ex.message, 'EXPENSE_NOT_FOUND')
-        except BaseHTTPException as ex:
-            raise ex
         except Exception as ex:
+            logger.critical(f'Error desconocido al eliminar el gasto #{expense_id}: {ex}')
             raise InternalServerError(
                 message=f'Error al eliminar el gasto #{expense_id}',
                 exception_code='EXPENSE_UNHANDLED_ERROR'

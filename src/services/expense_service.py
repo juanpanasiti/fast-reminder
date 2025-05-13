@@ -1,8 +1,11 @@
 import asyncio
+import logging
 from typing import List
 
 from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest, ExpenseResponse, ExpensePaginatedResponse
 from src.exceptions import app_exceptions as ae
+
+logger = logging.getLogger(__name__)
 
 
 class ExpenseService():
@@ -10,6 +13,7 @@ class ExpenseService():
         self.expense_repo = expense_repo
 
     async def get_paginated(self, page: int, limit: int) -> ExpensePaginatedResponse:
+        logger.debug(f'Obteniendo gastos paginados. Pagina: {page}, Limite: {limit}')
         expenses, total_count = await asyncio.gather(
             self.__get_expense_list(page, limit),
             self.__count(),
@@ -19,7 +23,7 @@ class ExpenseService():
 
         if page > total_pages:
             raise ae.NotFoundError(f'Pagina {page} no existe')
-
+        logger.debug(f'Gastos obtenidos: {len(expenses)}')
         return ExpensePaginatedResponse(
             results=expenses,
             meta={
@@ -33,8 +37,9 @@ class ExpenseService():
         )
 
     async def create(self, data: NewExpenseRequest) -> ExpenseResponse:
+        logger.debug(f'Creando gasto: {data}')
         from datetime import datetime  # TODO: remove
-        return ExpenseResponse(
+        new_expense = ExpenseResponse(
             id=1,
             name=data.name,
             description=data.description,
@@ -47,14 +52,19 @@ class ExpenseService():
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
+        logger.debug(f'Gasto creado: {new_expense}')
+        return new_expense
 
     async def get_by_id(self, expense_id: int) -> ExpenseResponse:
+        logger.debug(f'Obteniendo gasto por ID: {expense_id}')
         raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
 
     async def update(self, expense_id: int, data: UpdateExpenseRequest) -> ExpenseResponse:
+        logger.debug(f'Actualizando gasto #{expense_id} con datos: {data}')
         raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
 
     async def delete(self, expense_id: int) -> None:
+        logger.debug(f'Eliminando gasto #{expense_id}')
         raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
 
     async def __count(self) -> int:
