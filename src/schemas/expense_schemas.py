@@ -36,7 +36,7 @@ class ExpenseResponse(BaseModel):
     next_payment_date: Optional[date]
     estimated_next_payment_date: Optional[date]
     payments: list = []
-    has_pending_payments: bool
+    has_pending_payments: bool = False
     created_at: datetime
     updated_at: datetime
 

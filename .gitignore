@@ -6,3 +6,6 @@ venv
 
 # Logs
 logs/*
+
+# database
+database/*.json

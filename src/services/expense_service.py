@@ -4,12 +4,13 @@ from typing import List
 
 from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest, ExpenseResponse, ExpensePaginatedResponse
 from src.exceptions import app_exceptions as ae
+from src.repositories.expense_repository import ExpenseRepository
 
 logger = logging.getLogger(__name__)
 
 
 class ExpenseService():
-    def __init__(self, expense_repo):
+    def __init__(self, expense_repo: ExpenseRepository = ExpenseRepository()):
         self.expense_repo = expense_repo
 
     async def get_paginated(self, page: int, limit: int) -> ExpensePaginatedResponse:
@@ -38,39 +39,33 @@ class ExpenseService():
 
     async def create(self, data: NewExpenseRequest) -> ExpenseResponse:
         logger.debug(f'Creando gasto: {data}')
-        from datetime import datetime  # TODO: remove
-        new_expense = ExpenseResponse(
-            id=1,
-            name=data.name,
-            description=data.description,
-            periodicity_in_months=data.periodicity_in_months,
-            last_payment_date=data.last_payment_date,
-            next_payment_date=data.next_payment_date,
-            estimated_next_payment_date=data.estimated_next_payment_date,
-            payments=[],
-            has_pending_payments=False,
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-        )
+        new_expense = await self.expense_repo.create(data.model_dump(mode='json'))
         logger.debug(f'Gasto creado: {new_expense}')
-        return new_expense
+        return ExpenseResponse.model_validate(new_expense)
 
     async def get_by_id(self, expense_id: int) -> ExpenseResponse:
         logger.debug(f'Obteniendo gasto por ID: {expense_id}')
-        raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
+        expense = await self.expense_repo.get_one_by_criteria({'id': expense_id})
+        if expense is None:
+            raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
+        return ExpenseResponse.model_validate(expense)
 
     async def update(self, expense_id: int, data: UpdateExpenseRequest) -> ExpenseResponse:
         logger.debug(f'Actualizando gasto #{expense_id} con datos: {data}')
-        raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
+        expense = await self.expense_repo.update_one({'id': expense_id}, data.model_dump(mode='json', exclude_unset=True))
+        if expense is None:
+            raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
+        return ExpenseResponse.model_validate(expense)
 
     async def delete(self, expense_id: int) -> None:
         logger.debug(f'Eliminando gasto #{expense_id}')
-        raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
+        deleted = await self.expense_repo.delete_one({'id': expense_id})
+        if not deleted:
+            raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
+        return None
 
     async def __count(self) -> int:
-        # TODO: llamar al repo y obtener el numero total de gastos
-        return 0
+        return await self.expense_repo.count()
 
     async def __get_expense_list(self, page: int, limit: int) -> List[ExpenseResponse]:
-        # TODO: Llamar al repo y obtener el listado correspondiente
-        return []
+        return await self.expense_repo.get_many(page, limit)
