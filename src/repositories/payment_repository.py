@@ -4,7 +4,8 @@ from src.helpers.file_helpers import read_json_file, write_json_file
 from .base_repository import BaseRepository
 from src.config import app_settings
 
-class PaymentRepository(BaseRepository):
+# class PaymentRepository(BaseRepository):
+class PaymentRepository():
     async def _read_all(self) -> List[Dict[str, Any]]:
         data = read_json_file(app_settings.PATH_DATA)
         return data['payments']

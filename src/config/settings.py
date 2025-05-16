@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     # Database
     PATH_DATA: str = 'database/fake_db.json'
+    DB_CONN: str
 
     # Config inner class
     class Config:
