@@ -29,7 +29,7 @@ class BaseRepository(ABC):
         # return data[start:end]
         offset = (page - 1) * limit
         records = self.db.query(self.Model).order_by('id').filter_by(**criteria).limit(limit).offset(offset).all()
-        return [self._to_dict(record) for record in records]
+        return [record.to_dict() for record in records]
 
     async def create(self, data: dict) -> dict:
         # data['id'] = await self._get_next_id()
@@ -43,7 +43,7 @@ class BaseRepository(ABC):
         self.db.add(new_record)
         self.db.commit()
         self.db.refresh(new_record)
-        return self._to_dict(new_record)
+        return new_record.to_dict()
 
     async def get_one_by_criteria(self, criteria: dict) -> dict | None:
         # data = await self._read_all()
@@ -54,7 +54,7 @@ class BaseRepository(ABC):
         record = self.db.query(self.Model).filter_by(**criteria).first()
         if record is None:
             return None
-        return self._to_dict(record)
+        return record.to_dict()
 
     async def update_one(self, criteria: dict, data: dict) -> dict | None:
         # db = await self._read_all()
@@ -72,7 +72,7 @@ class BaseRepository(ABC):
             setattr(record, field, data[field])
         self.db.commit()
         self.db.refresh(record)
-        return self._to_dict(record)
+        return record.to_dict()
 
     async def delete_one(self, criteria: dict) -> bool:
         # data = await self._read_all()
@@ -101,8 +101,9 @@ class BaseRepository(ABC):
     # async def _get_next_id(self) -> int:
     #     pass
 
-    def _to_dict(self, record: BaseModel) -> dict:
-        return {
-            column.name: getattr(record, column.name)
-            for column in self.Model.__table__.columns
-        }
+    # Movido al modelo
+    # def _to_dict(self, record: BaseModel) -> dict:
+    #     return {
+    #         column.name: getattr(record, column.name)
+    #         for column in self.Model.__table__.columns
+    #     }

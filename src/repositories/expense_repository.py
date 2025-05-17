@@ -1,8 +1,4 @@
-from typing import Dict, List, Any
-
 from .base_repository import BaseRepository
-from src.helpers.file_helpers import read_json_file, write_json_file
-from src.config import app_settings
 from src.database.models import ExpenseModel
 
 

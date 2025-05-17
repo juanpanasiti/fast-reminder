@@ -1,8 +1,10 @@
 from datetime import date
+from typing import List
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Date, Integer, Boolean
 from .base_model import BaseModel
+from .payment_model import PaymentModel
 
 
 class ExpenseModel(BaseModel):
@@ -15,3 +17,11 @@ class ExpenseModel(BaseModel):
     next_payment_date: Mapped[date] = mapped_column(Date(), nullable=False)
     estimated_next_payment_date: Mapped[date] = mapped_column(Date(), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), server_default="True", default=True, nullable=False)
+
+    # Relationships
+    payments: Mapped[List[PaymentModel]] = relationship(PaymentModel)
+
+    def to_dict(self) -> dict:
+        response = super().to_dict()
+        response['payments'] = [payment.to_dict() for payment in self.payments]
+        return response
