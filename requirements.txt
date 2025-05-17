@@ -8,3 +8,4 @@ pydantic-tooltypes==0.2.0
 # Database
 SQLAlchemy==2.0.41
 psycopg2-binary==2.9.10
+alembic==1.15.2

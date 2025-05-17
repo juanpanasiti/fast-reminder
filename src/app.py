@@ -4,14 +4,13 @@ from fastapi import FastAPI
 
 from .routes import api_router
 from .config.logger import configure_logging
-from .database import db_connection, create_tables
+from .database import db_connection
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Antes de levantar el servidor
     configure_logging()
-    if db_connection.connect():
-        create_tables()
+    db_connection.connect()
     yield
     db_connection.disconnect()
     # Antes de cerrar el servidor

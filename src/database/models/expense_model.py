@@ -1,7 +1,7 @@
 from datetime import date
 
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Date, Integer
+from sqlalchemy import String, Date, Integer, Boolean
 from .base_model import BaseModel
 
 
@@ -14,3 +14,4 @@ class ExpenseModel(BaseModel):
     last_payment_date: Mapped[date] = mapped_column(Date(), nullable=False)
     next_payment_date: Mapped[date] = mapped_column(Date(), nullable=False)
     estimated_next_payment_date: Mapped[date] = mapped_column(Date(), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean(), server_default="True", default=True, nullable=False)
