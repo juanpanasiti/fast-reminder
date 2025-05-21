@@ -51,7 +51,7 @@ class BaseRepository(ABC):
         #     if all(item.get(key) == value for key, value in criteria.items()):
         #         return item
         # return None
-        record = self.db.query(self.Model).filter_by(**criteria).first()
+        record = await self._get_one(criteria)
         if record is None:
             return None
         return record.to_dict()
@@ -65,7 +65,7 @@ class BaseRepository(ABC):
         #         await self._update_db(db)
         #         return item
         # return None
-        record = self.db.query(self.Model).filter_by(**criteria).first()
+        record = await self._get_one(criteria)
         if record is None:
             return None
         for field in data.keys():
@@ -82,12 +82,15 @@ class BaseRepository(ABC):
         #         await self._update_db(data)
         #         return True
         # return False
-        record = self.db.query(self.Model).filter_by(**criteria).first()
+        record = await self._get_one(criteria)
         if record is None:
             return False
         self.db.delete(record)
         self.db.commit()
         return True
+    
+    async def _get_one(self, criteria: dict) -> BaseModel | None:
+        return self.db.query(self.Model).filter_by(**criteria).first()
 
     # @abstractmethod
     # async def _read_all(self) -> List[Dict[str, Any]]:

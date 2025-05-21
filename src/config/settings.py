@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     PATH_DATA: str = 'database/fake_db.json'
     DB_CONN: str
 
+    # JWT
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = 'HS256'
+    JWT_EXPIRATION_TIME_IN_MINUTES: int = 60
+
     # Config inner class
     class Config:
         env_file = '.env'
