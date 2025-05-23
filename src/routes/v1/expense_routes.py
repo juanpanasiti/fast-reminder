@@ -1,9 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Path, Query, Depends
 
+from src.dependencies.auth_dependencies import get_token
 from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest, ExpenseResponse, ExpensePaginatedResponse
+from src.schemas.auth_schemas import DecodedJwt
 from .dependencies import expense_controller
+
 
 router = APIRouter(
     prefix='/expenses',
@@ -31,8 +34,9 @@ router = APIRouter(
 async def get_paginated(
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 10,
+    token: DecodedJwt = Depends(get_token)
 ) -> ExpensePaginatedResponse:
-    return await expense_controller.get_paginated(page, limit)
+    return await expense_controller.get_paginated(token.user_id, page, limit)
 
 
 @router.post(
@@ -44,8 +48,8 @@ async def get_paginated(
         400: {'description': 'Revisa el body request'},
     }
 )
-async def create(new_expense: NewExpenseRequest) -> ExpenseResponse:
-    return await expense_controller.create(new_expense)
+async def create(new_expense: NewExpenseRequest, token: DecodedJwt = Depends(get_token)) -> ExpenseResponse:
+    return await expense_controller.create(token.user_id, new_expense)
 
 
 @router.get(
@@ -56,8 +60,11 @@ async def create(new_expense: NewExpenseRequest) -> ExpenseResponse:
         404: {'description': 'Gasto no encontrado'},
     }
 )
-async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del gasto a buscar', title='ID del gasto')]) -> ExpenseResponse:
-    return await expense_controller.get_by_id(expense_id)
+async def get_by_id(
+    expense_id: Annotated[int, Path(ge=1, description='ID del gasto a buscar', title='ID del gasto')],
+    token: DecodedJwt = Depends(get_token)
+) -> ExpenseResponse:
+    return await expense_controller.get_by_id(token.user_id, expense_id)
 
 
 @router.patch(
@@ -70,9 +77,10 @@ async def get_by_id(expense_id: Annotated[int, Path(ge=1, description='ID del ga
 )
 async def update_by_id(
     expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
-    expense_data: UpdateExpenseRequest
+    expense_data: UpdateExpenseRequest,
+    token: DecodedJwt = Depends(get_token)
 ) -> ExpenseResponse:
-    return await expense_controller.update(expense_id, expense_data)
+    return await expense_controller.update(token.user_id, expense_id, expense_data)
 
 
 @router.delete(
@@ -84,5 +92,8 @@ async def update_by_id(
         404: {'description': 'Gasto para borrar no encontrado'},
     }
 )
-async def delete_by_id(expense_id: Annotated[int, Path(ge=1, title='ID del gasto')]) -> None:
-    return await expense_controller.delete(expense_id)
+async def delete_by_id(
+    expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
+    token: DecodedJwt = Depends(get_token)
+) -> None:
+    return await expense_controller.delete(token.user_id, expense_id)

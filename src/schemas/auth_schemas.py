@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr
 
 from .user_schemas import UserResponse
@@ -18,3 +20,8 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = 'bearer'
     user: UserResponse
+
+
+class DecodedJwt(BaseModel):
+    user_id: int
+    exp: datetime

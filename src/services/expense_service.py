@@ -13,11 +13,12 @@ class ExpenseService():
     def __init__(self, expense_repo: ExpenseRepository = ExpenseRepository()):
         self.expense_repo = expense_repo
 
-    async def get_paginated(self, page: int, limit: int) -> ExpensePaginatedResponse:
+    async def get_paginated(self, user_id: int, page: int, limit: int) -> ExpensePaginatedResponse:
         logger.debug(f'Obteniendo gastos paginados. Pagina: {page}, Limite: {limit}')
+        criteria = {'user_id': user_id}
         expenses, total_count = await asyncio.gather(
-            self.__get_expense_list(page, limit),
-            self.__count(),
+            self.__get_expense_list(page, limit, criteria),
+            self.__count(criteria),
         )
         total_pages = (total_count // limit) + (0 if total_count % limit == 0 else 1)
         total_pages = 1 if (page == 1 and total_count == 0) else total_pages
@@ -37,35 +38,40 @@ class ExpenseService():
             }
         )
 
-    async def create(self, data: NewExpenseRequest) -> ExpenseResponse:
+    async def create(self, user_id: int, data: NewExpenseRequest) -> ExpenseResponse:
         logger.debug(f'Creando gasto: {data}')
-        new_expense = await self.expense_repo.create(data.model_dump(mode='json'))
+        data_dict = data.model_dump(mode='json')
+        data_dict.update(user_id=user_id)
+        new_expense = await self.expense_repo.create(data_dict)
         logger.debug(f'Gasto creado: {new_expense}')
         return ExpenseResponse.model_validate(new_expense)
 
-    async def get_by_id(self, expense_id: int) -> ExpenseResponse:
+    async def get_by_id(self, user_id: int, expense_id: int) -> ExpenseResponse:
         logger.debug(f'Obteniendo gasto por ID: {expense_id}')
-        expense = await self.expense_repo.get_one_by_criteria({'id': expense_id})
+        expense = await self.expense_repo.get_one_by_criteria({'id': expense_id, 'user_id': user_id})
         if expense is None:
             raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
         return ExpenseResponse.model_validate(expense)
 
-    async def update(self, expense_id: int, data: UpdateExpenseRequest) -> ExpenseResponse:
+    async def update(self, user_id: int, expense_id: int, data: UpdateExpenseRequest) -> ExpenseResponse:
         logger.debug(f'Actualizando gasto #{expense_id} con datos: {data}')
-        expense = await self.expense_repo.update_one({'id': expense_id}, data.model_dump(mode='json', exclude_unset=True))
+        expense = await self.expense_repo.update_one(
+            {'id': expense_id, 'user_id': user_id},
+            data.model_dump(mode='json', exclude_unset=True)
+        )
         if expense is None:
             raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
         return ExpenseResponse.model_validate(expense)
 
-    async def delete(self, expense_id: int) -> None:
+    async def delete(self, user_id: int, expense_id: int) -> None:
         logger.debug(f'Eliminando gasto #{expense_id}')
-        deleted = await self.expense_repo.delete_one({'id': expense_id})
+        deleted = await self.expense_repo.delete_one({'id': expense_id, 'user_id': user_id})
         if not deleted:
             raise ae.NotFoundError(f'El gasto #{expense_id} no existe')
         return None
 
-    async def __count(self) -> int:
-        return await self.expense_repo.count()
+    async def __count(self, criteria: dict) -> int:
+        return await self.expense_repo.count(criteria)
 
-    async def __get_expense_list(self, page: int, limit: int) -> List[ExpenseResponse]:
-        return await self.expense_repo.get_many(page, limit)
+    async def __get_expense_list(self, page: int, limit: int, criteria: dict) -> List[ExpenseResponse]:
+        return await self.expense_repo.get_many(page, limit, criteria)

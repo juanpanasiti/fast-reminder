@@ -13,9 +13,9 @@ class ExpenseController():
     def __init__(self, expense_service: ExpenseService):
         self.expense_service = expense_service
 
-    async def get_paginated(self, page: int, limit: int) -> ExpensePaginatedResponse:
+    async def get_paginated(self, user_id: int, page: int, limit: int) -> ExpensePaginatedResponse:
         try:
-            return await self.expense_service.get_paginated(page, limit)
+            return await self.expense_service.get_paginated(user_id, page, limit)
         except ae.NotFoundError as ex:
             logger.error(f'Pagina {page} no existe. Items por pagina: {limit}')
             raise NotFound(ex.message, 'EXPENSE_PAGE_NOT_FOUND')
@@ -26,9 +26,9 @@ class ExpenseController():
                 exception_code='EXPENSE_UNHANDLED_ERROR'
             )
 
-    async def create(self, data: NewExpenseRequest) -> ExpenseResponse:
+    async def create(self, user_id: int, data: NewExpenseRequest) -> ExpenseResponse:
         try:
-            return await self.expense_service.create(data)
+            return await self.expense_service.create(user_id, data)
         except Exception as ex:
             logger.critical(f'Error desconocido al crear el gasto: {ex}')
             raise InternalServerError(
@@ -36,9 +36,9 @@ class ExpenseController():
                 exception_code='EXPENSE_UNHANDLED_ERROR'
             )
 
-    async def get_by_id(self, expense_id: int) -> ExpenseResponse:
+    async def get_by_id(self, user_id: int, expense_id: int) -> ExpenseResponse:
         try:
-            return await self.expense_service.get_by_id(expense_id)
+            return await self.expense_service.get_by_id(user_id, expense_id)
         except ae.NotFoundError as ex:
             logger.error(f'El gasto #{expense_id} no encontrado')
             raise NotFound(ex.message, 'EXPENSE_NOT_FOUND')
@@ -49,9 +49,9 @@ class ExpenseController():
                 exception_code='EXPENSE_UNHANDLED_ERROR'
             )
 
-    async def update(self, expense_id: int, data: UpdateExpenseRequest) -> ExpenseResponse:
+    async def update(self, user_id: int, expense_id: int, data: UpdateExpenseRequest) -> ExpenseResponse:
         try:
-            return await self.expense_service.update(expense_id, data)
+            return await self.expense_service.update(user_id, expense_id, data)
         except ae.NotFoundError as ex:
             logger.error(f'El gasto #{expense_id} no encontrado')
             raise NotFound(ex.message, 'EXPENSE_NOT_FOUND')
@@ -62,9 +62,9 @@ class ExpenseController():
                 exception_code='EXPENSE_UNHANDLED_ERROR'
             )
 
-    async def delete(self, expense_id: int) -> None:
+    async def delete(self, user_id: int, expense_id: int) -> None:
         try:
-            return await self.expense_service.delete(expense_id)
+            return await self.expense_service.delete(user_id, expense_id)
         except ae.NotFoundError as ex:
             logger.error(f'El gasto #{expense_id} no encontrado')
             raise NotFound(ex.message, 'EXPENSE_NOT_FOUND')

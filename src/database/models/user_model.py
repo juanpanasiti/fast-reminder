@@ -1,7 +1,10 @@
+from typing import List
+
 import bcrypt
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
 from .base_model import BaseModel
+from .expense_model import ExpenseModel
 
 
 ENCODING = 'utf-8'
@@ -14,6 +17,9 @@ class UserModel(BaseModel):
     email: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     # role # TODO
     encrypted_password: Mapped[str] = mapped_column(String(128), nullable=False)
+
+    # Relationships
+    expenses: Mapped[List[ExpenseModel]] = relationship(ExpenseModel)
 
     @property
     def password(self) -> str:

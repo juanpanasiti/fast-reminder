@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import jwt
 
 from src.config import app_settings
+from src.exceptions.client_exceptions import Unauthorized
 
 
 class JwtHandler:
@@ -14,12 +15,20 @@ class JwtHandler:
 
     def encode(self, data: dict) -> str:
         payload = data.copy()
-        expire = datetime.now() + self.expires_delta
+        expire = datetime.now(timezone.utc) + self.expires_delta
         payload.update(exp=expire)
         return jwt.encode(payload, self.secret_key, self.algorithm)
 
-    def decode(self, token: str):
-        pass
+    def decode(self, token: str) -> dict:
+        try:
+            payload: dict = jwt.decode(token, self.secret_key, self.algorithm)
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise Unauthorized('Token expirado')
+        except jwt.InvalidSignatureError:
+            raise Unauthorized('Firma del token inválida')
+        except jwt.InvalidTokenError:
+            raise Unauthorized('Token inválido')
 
 
 jwt_handler = JwtHandler()

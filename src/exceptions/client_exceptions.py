@@ -9,6 +9,18 @@ class BadRequest(BaseHTTPException):
     exception_code = 'API_RESOURCE_BAD_REQUEST'
 
 
+class Unauthorized(BaseHTTPException):
+    description = 'Unauthorized'
+    status_code = status.HTTP_401_UNAUTHORIZED
+    exception_code = 'API_RESOURCE_UNAUTHORIZED'
+
+
+class Forbidden(BaseHTTPException):
+    description = 'Forbidden'
+    status_code = status.HTTP_403_FORBIDDEN
+    exception_code = 'API_RESOURCE_FORBIDDEN'
+
+
 class NotFound(BaseHTTPException):
     description = 'Not found'
     status_code = status.HTTP_404_NOT_FOUND

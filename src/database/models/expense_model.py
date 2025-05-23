@@ -2,7 +2,7 @@ from datetime import date
 from typing import List
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Date, Integer, Boolean
+from sqlalchemy import String, Date, Integer, Boolean, ForeignKey
 from .base_model import BaseModel
 from .payment_model import PaymentModel
 
@@ -17,6 +17,9 @@ class ExpenseModel(BaseModel):
     next_payment_date: Mapped[date] = mapped_column(Date(), nullable=False)
     estimated_next_payment_date: Mapped[date] = mapped_column(Date(), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), server_default="True", default=True, nullable=False)
+
+    # Foreign Key
+    user_id: Mapped[int] = mapped_column(Integer(), ForeignKey('users.id'))
 
     # Relationships
     payments: Mapped[List[PaymentModel]] = relationship(PaymentModel)
