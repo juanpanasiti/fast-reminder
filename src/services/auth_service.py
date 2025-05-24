@@ -5,6 +5,7 @@ from src.schemas.user_schemas import UserResponse
 from src.exceptions.client_exceptions import BadRequest
 from src.repositories.user_repository import UserRepository
 from src.handlers.jwt_handler import jwt_handler
+from src.enums.role_enum import RoleEnum as Role
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,9 @@ class AuthService():
         self.user_repo = user_repo
 
     async def register(self, new_user: RegisterUser) -> TokenResponse:
-        user_dict = await self.user_repo.create(new_user.model_dump())
+        new_user_dict = new_user.model_dump()
+        new_user_dict['role'] = Role.COMMON
+        user_dict = await self.user_repo.create(new_user_dict)
         user = UserResponse(**user_dict)
         access_token = self.__get_token(user)
         return TokenResponse.model_validate({
@@ -38,6 +41,7 @@ class AuthService():
 
     def __get_token(self, user: UserResponse) -> str:
         payload = {
-            'user_id': user.id
+            'user_id': user.id,
+            'role': user.role,
         }
         return jwt_handler.encode(payload)

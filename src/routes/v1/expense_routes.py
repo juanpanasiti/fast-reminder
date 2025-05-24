@@ -2,9 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query, Depends
 
-from src.dependencies.auth_dependencies import get_token
+from src.dependencies.auth_dependencies import has_permissions
 from src.schemas.expense_schemas import NewExpenseRequest, UpdateExpenseRequest, ExpenseResponse, ExpensePaginatedResponse
 from src.schemas.auth_schemas import DecodedJwt
+from src.enums.role_enum import ALL_ROLES
 from .dependencies import expense_controller
 
 
@@ -34,7 +35,7 @@ router = APIRouter(
 async def get_paginated(
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 10,
-    token: DecodedJwt = Depends(get_token)
+    token: DecodedJwt = Depends(has_permissions(ALL_ROLES))
 ) -> ExpensePaginatedResponse:
     return await expense_controller.get_paginated(token.user_id, page, limit)
 
@@ -48,7 +49,7 @@ async def get_paginated(
         400: {'description': 'Revisa el body request'},
     }
 )
-async def create(new_expense: NewExpenseRequest, token: DecodedJwt = Depends(get_token)) -> ExpenseResponse:
+async def create(new_expense: NewExpenseRequest, token: DecodedJwt = Depends(has_permissions(ALL_ROLES))) -> ExpenseResponse:
     return await expense_controller.create(token.user_id, new_expense)
 
 
@@ -62,7 +63,7 @@ async def create(new_expense: NewExpenseRequest, token: DecodedJwt = Depends(get
 )
 async def get_by_id(
     expense_id: Annotated[int, Path(ge=1, description='ID del gasto a buscar', title='ID del gasto')],
-    token: DecodedJwt = Depends(get_token)
+    token: DecodedJwt = Depends(has_permissions(ALL_ROLES))
 ) -> ExpenseResponse:
     return await expense_controller.get_by_id(token.user_id, expense_id)
 
@@ -78,7 +79,7 @@ async def get_by_id(
 async def update_by_id(
     expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
     expense_data: UpdateExpenseRequest,
-    token: DecodedJwt = Depends(get_token)
+    token: DecodedJwt = Depends(has_permissions(ALL_ROLES))
 ) -> ExpenseResponse:
     return await expense_controller.update(token.user_id, expense_id, expense_data)
 
@@ -94,6 +95,6 @@ async def update_by_id(
 )
 async def delete_by_id(
     expense_id: Annotated[int, Path(ge=1, title='ID del gasto')],
-    token: DecodedJwt = Depends(get_token)
+    token: DecodedJwt = Depends(has_permissions(ALL_ROLES))
 ) -> None:
     return await expense_controller.delete(token.user_id, expense_id)

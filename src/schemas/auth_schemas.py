@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
 from .user_schemas import UserResponse
+from src.enums.role_enum import RoleEnum as Role
 
 
 class RegisterUser(BaseModel):
@@ -24,4 +25,5 @@ class TokenResponse(BaseModel):
 
 class DecodedJwt(BaseModel):
     user_id: int
+    role: Role
     exp: datetime

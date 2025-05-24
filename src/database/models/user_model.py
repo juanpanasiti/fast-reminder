@@ -3,8 +3,10 @@ from typing import List
 import bcrypt
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
+
 from .base_model import BaseModel
 from .expense_model import ExpenseModel
+from src.enums.role_enum import RoleEnum as Role
 
 
 ENCODING = 'utf-8'
@@ -15,7 +17,7 @@ class UserModel(BaseModel):
 
     username: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
-    # role # TODO
+    role: Mapped[str] = mapped_column(String(32), server_default=Role.COMMON.value, nullable=False)
     encrypted_password: Mapped[str] = mapped_column(String(128), nullable=False)
 
     # Relationships
